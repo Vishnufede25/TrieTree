@@ -1,0 +1,178 @@
+#include <map>
+#include <set>
+#include <list>
+#include <cmath>
+#include <ctime>
+#include <deque>
+#include <queue>
+#include <stack>
+#include <string>
+#include <bitset>
+#include <cstdio>
+#include <limits>
+#include <vector>
+#include <climits>
+#include <cstring>
+#include <cstdlib>
+#include <fstream>
+#include <numeric>
+#include <sstream>
+#include <iostream>
+#include <algorithm>
+#include <unordered_map>
+
+using namespace std;
+
+class Node {
+public:
+	char val;
+	vector<Node*> children;
+	bool isComplete = false;
+	int upwords = 0;
+	Node(char ch) { val = ch; }
+	Node() { val = '*'; }
+};
+class TrieTree {
+public:
+	Node* root=nullptr;
+	void add_it(string contact);
+	int find_it(string contact);
+};
+void TrieTree::add_it(string name)
+{
+	Node* troot = root;
+	if (root->children.size() == 0)
+	{
+		for (int i = 0; i < name.length(); i++)
+		{
+			troot->children.resize(troot->children.size() + 1);
+			troot->children[0] = new Node(name[i]);
+			troot = troot->children[0];
+			troot->upwords++;
+		}
+		troot->children.resize(troot->children.size() + 1);
+		troot->children[troot->children.size()-1] = new Node('*');
+		return;
+	}
+	
+		
+		bool alreadyFound = false;
+		int j = 0;
+		while (j<name.length())
+		{
+			alreadyFound = false;
+			if (troot->children.size() == 0)
+			{
+				for (int i = 0; i < name.length(); i++)
+				{
+					troot->children.resize(troot->children.size() + 1);
+					troot->children[0] = new Node(name[i]);
+					troot = troot->children[0];
+					troot->upwords++;
+					j = name.length();
+				}
+				troot->children.resize(troot->children.size() + 1);
+				troot->children[troot->children.size()-1] = new Node('*');
+				return;
+			}
+			for (int i = 0; i < troot->children.size(); i++)
+			{				
+				if (troot->children[i]->val == name[j])
+				{
+					troot = troot->children[i];
+					troot->upwords++;
+					alreadyFound = true;
+					j++;
+					break;
+				}				
+			}
+			if (alreadyFound == false)
+			{
+				while (j < name.length())
+				{
+					troot->children.resize(troot->children.size() + 1);
+					troot->children[troot->children.size() - 1] = new Node(name[j]);
+					troot = troot->children[troot->children.size() - 1];
+					troot->upwords++;
+					j++;
+				}
+				troot->children.resize(troot->children.size() + 1);
+				troot->children[troot->children.size()-1] = new Node('*');
+			}
+		}
+		return;
+		//troot = root;
+		
+}
+int TrieTree::find_it(string contact)
+{
+	Node *troot = root;
+	Node *bnode = root;
+	int j = 0;
+	bool found = false;
+	int count = 0;
+	while (j < contact.length())
+	{
+		
+		if (troot->children.size() == 0)
+		{
+			return count;
+		}found = false;
+		for (int i = 0; i < troot->children.size(); i++)
+		{
+			if (troot->children[i]->val == '*')
+			{
+				if(found == true)
+				count = troot->upwords;
+				if (i == troot->children.size() - 1)
+					break;
+			}
+			if (troot->children[i]->val == contact[j])//&& troot->children[i]->val.compare('*') !=0)
+			{
+				found = true;
+				bnode = troot;
+				troot = troot->children[i];
+				count = troot->upwords;
+				j++;
+				break;
+			}
+			/*else
+			{
+				found = false;
+			}*/
+		}
+		if (found == false)
+		{
+			count = 0;
+			j = contact.length();
+		}
+
+	}
+	return count;
+}
+int main() {
+	int n;
+	TrieTree t;
+	t.root = new Node('*');
+	cin >> n;
+	vector<int> count;
+	int a1 = 0;
+	for (int a0 = 0; a0 < n; a0++) {
+		string op;
+		string contact;
+		cin >> op >> contact;
+		if (op.compare("add")==0)
+			t.add_it(contact);
+		if (op.compare("find") == 0)
+		{
+			count.resize(count.size() + 1);
+			count[a1] = t.find_it(contact);
+			a1++;
+		}
+	}
+	for(int i=0;i<count.size();i++)
+		cout << count[i] << "\n";
+	getchar();
+	getchar();
+	return 0;
+}
